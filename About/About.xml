@@ -1,0 +1,9 @@
+<ModMetaData>
+    <name>BetterPawnControl ProgressionEducation Patch</name>
+    <description>Compatibility patch for BetterPawnControl and ProgressionEducation</description>
+    <author>Machado</author>
+    <supportedVersions>
+        <li>1.6</li>
+    </supportedVersions>
+    <packageId>machado.bpc_pe_patch</packageId>
+</ModMetaData>
