@@ -44,12 +44,8 @@ namespace BetterPawnControlProgressionEducationPatch.Interop.BetterPawnControl
 
         private static Func<Policy> BuildGetActivePolicyDelegate()
         {
-            var method = AccessTools.Method(ScheduleManagerType, "GetActivePolicy") ??
-                         AccessTools.Method(ManagerType, "GetActivePolicy");
-
-            return method == null
-                ? null
-                : AccessTools.MethodDelegate<Func<Policy>>(method);
+            var method = AccessTools.Method(ScheduleManagerType, "GetActivePolicy");
+            return AccessTools.MethodDelegate<Func<Policy>>(method);
         }
     }
 }
