@@ -1,12 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputPath>..\Assemblies</OutputPath>
-        <TargetFramework>net472</TargetFramework>
+        <TargetFramework>net48</TargetFramework>
         <AssemblyTitle>Wormax</AssemblyTitle>
         <AssemblyVersion>2024.0721.1</AssemblyVersion>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <LangVersion>latest</LangVersion>
+        <DependencyCacheDir Condition="'$(DependencyCacheDir)' == ''">$(MSBuildProjectDirectory)/.deps</DependencyCacheDir>
+        <BetterPawnControlGitHubUrl>https://raw.githubusercontent.com/voult2/BetterPawnControl/master/Assemblies/BetterPawnControl.dll</BetterPawnControlGitHubUrl>
+        <ProgressionEducationGitHubUrl>https://raw.githubusercontent.com/fernyrepos/Progression-Education/main/1.6/Assemblies/ProgressionEducation.dll</ProgressionEducationGitHubUrl>
+        <BetterPawnControlAssemblyPath>$(DependencyCacheDir)/BetterPawnControl.dll</BetterPawnControlAssemblyPath>
+        <ProgressionEducationAssemblyPath>$(DependencyCacheDir)/ProgressionEducation.dll</ProgressionEducationAssemblyPath>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <DebugSymbols>true</DebugSymbols>
@@ -29,4 +34,21 @@
             <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+    <ItemGroup>
+        <Reference Include="BetterPawnControl">
+            <HintPath>$(BetterPawnControlAssemblyPath)</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="ProgressionEducation">
+            <HintPath>$(ProgressionEducationAssemblyPath)</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+    <Target Name="DownloadGitHubModDependencies" BeforeTargets="PrepareForBuild;ResolveAssemblyReferences;ResolveReferences">
+        <MakeDir Directories="$(DependencyCacheDir)" />
+        <Exec Command="curl -fL --retry 3 --retry-delay 1 -o &quot;$(BetterPawnControlAssemblyPath)&quot; &quot;$(BetterPawnControlGitHubUrl)&quot;" Condition="!Exists('$(BetterPawnControlAssemblyPath)')" />
+        <Exec Command="curl -fL --retry 3 --retry-delay 1 -o &quot;$(ProgressionEducationAssemblyPath)&quot; &quot;$(ProgressionEducationGitHubUrl)&quot;" Condition="!Exists('$(ProgressionEducationAssemblyPath)')" />
+        <Error Condition="!Exists('$(BetterPawnControlAssemblyPath)')" Text="Missing BetterPawnControl dependency. Could not download $(BetterPawnControlGitHubUrl)." />
+        <Error Condition="!Exists('$(ProgressionEducationAssemblyPath)')" Text="Missing ProgressionEducation dependency. Could not download $(ProgressionEducationGitHubUrl)." />
+    </Target>
 </Project>
