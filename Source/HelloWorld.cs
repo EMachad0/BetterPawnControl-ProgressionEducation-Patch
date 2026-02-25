@@ -7,7 +7,7 @@ namespace BetterPawnControlProgressionEducationPatch
     {
         static HelloWorld()
         {
-            Log.Message("[Wormax] Hello world! Mod assembly loaded.");
+            Log.Message("[BPC PE Patch] Hello world! Mod assembly loaded.");
         }
     }
 }
