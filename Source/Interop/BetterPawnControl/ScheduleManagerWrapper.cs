@@ -17,7 +17,6 @@ namespace BetterPawnControlProgressionEducationPatch.Interop.BetterPawnControl
         private static readonly Func<Policy> GetActivePolicyDelegate = BuildGetActivePolicyDelegate();
 
         private static readonly System.Reflection.FieldInfo LinksField =
-            AccessTools.Field(ScheduleManagerType, "links") ??
             AccessTools.Field(ManagerType, "links");
 
         public static int GetActivePolicyIdOrDefault(int fallbackPolicyId = 0)
