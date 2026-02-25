@@ -25,6 +25,11 @@ namespace BetterPawnControlProgressionEducationPatch.Interop.BetterPawnControl
             return activePolicy == null ? fallbackPolicyId : PolicyIdRef(activePolicy);
         }
 
+        public static int GetPolicyIdOrDefault(Policy policy, int fallbackPolicyId = 0)
+        {
+            return policy == null ? fallbackPolicyId : PolicyIdRef(policy);
+        }
+
         public static IEnumerable<ScheduleLinkWrapper> EnumerateScheduleLinks()
         {
             var links = LinksField?.GetValue(null) as IEnumerable;

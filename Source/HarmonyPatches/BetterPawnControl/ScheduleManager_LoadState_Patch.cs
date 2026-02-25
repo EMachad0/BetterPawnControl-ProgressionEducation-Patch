@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using BetterPawnControl;
+using BetterPawnControlProgressionEducationPatch.Interop.BetterPawnControl;
 using BetterPawnControlProgressionEducationPatch.Utilities;
 using HarmonyLib;
 using ProgressionEducation;
@@ -32,9 +33,13 @@ namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.BetterPawnCo
             return method ?? throw new MissingMethodException("Could not resolve ScheduleManager.LoadState(List<ScheduleLink>, List<Pawn>, Policy).");
         }
 
-        public static void Postfix([HarmonyArgument(1)] List<Pawn> pawns, Policy policy)
+        public static void Postfix(
+            [HarmonyArgument(1)] List<Pawn> pawns,
+            [HarmonyArgument(2)] Policy policy
+        )
         {
-            if (policy.id == 0)
+            var policyId = ScheduleManagerWrapper.GetPolicyIdOrDefault(policy);
+            if (policyId == ScheduleUtility.defaultClassPolicyId)
             {
                 return;
             }

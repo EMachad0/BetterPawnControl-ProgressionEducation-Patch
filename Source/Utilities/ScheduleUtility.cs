@@ -7,6 +7,8 @@ namespace BetterPawnControlProgressionEducationPatch.Utilities
 {
     public static class ScheduleUtility
     {
+        public readonly static int defaultClassPolicyId = 0;
+
         internal static void SetBPCAssignment(ScheduleLinkWrapper link, StudyGroup studyGroup, TimeAssignmentDef assignment = null)
         {
             TryRepairScheduleLink(link);

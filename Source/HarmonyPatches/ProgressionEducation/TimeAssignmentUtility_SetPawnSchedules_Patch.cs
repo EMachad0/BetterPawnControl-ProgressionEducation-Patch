@@ -8,12 +8,12 @@ using Verse;
 
 namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.ProgressionEducation
 {
-    [HarmonyPatch(typeof(global::ProgressionEducation.TimeAssignmentUtility), "SetPawnSchedules")]
+    [HarmonyPatch(typeof(TimeAssignmentUtility), "SetPawnSchedules")]
     public static class TimeAssignmentUtility_SetPawnSchedules_Patch
     {
         public static bool Prefix(StudyGroup studyGroup, List<Pawn> participants, TimeAssignmentDef assignment = null)
         {
-            var policyId = 0;
+            var policyId = ScheduleUtility.defaultClassPolicyId;
             var activePolicyId = ScheduleManagerWrapper.GetActivePolicyIdOrDefault();
 
             foreach (var participant in participants)
