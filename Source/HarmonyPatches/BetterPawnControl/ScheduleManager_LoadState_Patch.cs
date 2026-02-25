@@ -30,7 +30,8 @@ namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.BetterPawnCo
             var method = AccessTools.Method(
                 ScheduleManagerType,
                 "LoadState",
-                new[] { scheduleLinkListType, typeof(List<Pawn>), typeof(Policy) });
+                new[] { scheduleLinkListType, typeof(List<Pawn>), typeof(Policy) }
+            );
 
             return method ?? throw new MissingMethodException("Could not resolve ScheduleManager.LoadState(List<ScheduleLink>, List<Pawn>, Policy).");
         }
@@ -45,28 +46,8 @@ namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.BetterPawnCo
             {
                 return;
             }
-            if (pawns == null)
-            {
-                return;
-            }
 
-            foreach (var pawn in pawns)
-            {
-                if (pawn?.timetable == null)
-                {
-                    continue;
-                }
-
-                for (int hour = 0; hour < 24; hour++)
-                {
-                    var timeDef = pawn.timetable.GetAssignment(hour);
-                    if (TimeAssignmentUtility.IsStudyGroupAssignment(timeDef))
-                    {
-                        var assignmentToSet = ScheduleUtility.GetDefaultTimeAssignmentDef(hour);
-                        pawn.timetable.SetAssignment(hour, assignmentToSet);
-                    }
-                }
-            }
+            ScheduleUtility.RemoveClassesFromPawnTimetables(pawns);
         }
     }
 }

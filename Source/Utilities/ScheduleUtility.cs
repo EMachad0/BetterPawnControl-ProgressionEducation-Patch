@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using BetterPawnControlProgressionEducationPatch.Interop.BetterPawnControl;
 using ProgressionEducation;
 using RimWorld;
@@ -60,11 +61,37 @@ namespace BetterPawnControlProgressionEducationPatch.Utilities
             return (hour > 5 && hour <= 21) ? TimeAssignmentDefOf.Anything : TimeAssignmentDefOf.Sleep;
         }
 
-        internal static ScheduleLinkWrapper GetScheduleLink(Pawn pawn, int policyId)
+        internal static ScheduleLinkWrapper GetScheduleLink(Pawn pawn, int policyId, int mapId)
         {
             return ScheduleManagerWrapper
                 .EnumerateScheduleLinks()
-                .FirstOrFallback(l => l.zone == policyId && l.colonist != null && pawn.Equals(l.colonist) && l.mapId == pawn.Map.uniqueID);
+                .FirstOrFallback(l => l.zone == policyId && l.colonist is not null && pawn.Equals(l.colonist) && l.mapId == mapId);
+        }
+
+        public static void RemoveClassesFromPawnTimetables(List<Pawn> pawns)
+        {
+            if (pawns is null)
+            {
+                return;
+            }
+
+            foreach (var pawn in pawns)
+            {
+                if (pawn?.timetable == null)
+                {
+                    continue;
+                }
+
+                for (int hour = 0; hour < 24; hour++)
+                {
+                    var timeDef = pawn.timetable.GetAssignment(hour);
+                    if (TimeAssignmentUtility.IsStudyGroupAssignment(timeDef))
+                    {
+                        var assignmentToSet = ScheduleUtility.GetDefaultTimeAssignmentDef(hour);
+                        pawn.timetable.SetAssignment(hour, assignmentToSet);
+                    }
+                }
+            }
         }
     }
 }
