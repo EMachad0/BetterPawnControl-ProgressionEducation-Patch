@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using BetterPawnControl;
+using BetterPawnControlProgressionEducationPatch.Utilities;
 using HarmonyLib;
-using BetterPawnControlProgressionEducationPatch.HarmonyPatches.ProgressionEducation;
 using ProgressionEducation;
 using Verse;
 
@@ -32,8 +32,12 @@ namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.BetterPawnCo
             return method ?? throw new MissingMethodException("Could not resolve ScheduleManager.LoadState(List<ScheduleLink>, List<Pawn>, Policy).");
         }
 
-        public static void Postfix([HarmonyArgument(1)] List<Pawn> pawns)
+        public static void Postfix([HarmonyArgument(1)] List<Pawn> pawns, Policy policy)
         {
+            if (policy.id == 0)
+            {
+                return;
+            }
             if (pawns == null)
             {
                 return;
@@ -51,7 +55,7 @@ namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.BetterPawnCo
                     var timeDef = pawn.timetable.GetAssignment(hour);
                     if (TimeAssignmentUtility.IsStudyGroupAssignment(timeDef))
                     {
-                        var assignmentToSet = TimeAssignmentUtility_SetPawnSchedules_Patch.GetDefaultTimeAssignmentDef(hour);
+                        var assignmentToSet = ScheduleUtility.GetDefaultTimeAssignmentDef(hour);
                         pawn.timetable.SetAssignment(hour, assignmentToSet);
                     }
                 }
