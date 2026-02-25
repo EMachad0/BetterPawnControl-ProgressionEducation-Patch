@@ -17,52 +17,69 @@ namespace BetterPawnControlProgressionEducationPatch
 
             foreach (var participant in participants)
             {
-                var scheduleLink = getDefaultScheduleLink(participant, policyId);
+                var scheduleLink = getScheduleLink(participant, policyId);
                 if (scheduleLink == null)
                 {
-                    Log.Error($"[BPC PE Patch] ScheduleLink 0 not found.");
+                    Log.Error($"[BPC PE Patch] ScheduleLink for {participant.LabelShort} and policy {policyId} not found.");
                     continue;
                 }
 
-                for (int hour = 0; hour < 24; hour++)
+                SetBPCAssignment(scheduleLink, studyGroup, assignment);
+            }
+
+            // set to current schedule if targeted policy is the current schedule
+            return policyId == activePolicyId;
+        }
+
+        private static TimeAssignmentDef GetDefaultTimeAssignmentDef(int hour)
+        {
+            return (hour > 5 && hour <= 21) ? TimeAssignmentDefOf.Anything : TimeAssignmentDefOf.Sleep;
+        }
+
+        private static void TryRepairScheduleLink(ScheduleLinkWrapper scheduleLink)
+        {
+            if (scheduleLink.schedule is null)
+            {
+                Log.Error($"[BPC PE Patch] ScheduleLink without schedule for {scheduleLink.colonist.LabelShort} and policyId {scheduleLink.zone}.");
+            }
+            while (scheduleLink.schedule.Count < 24)
+            {
+                int hour = scheduleLink.schedule.Count;
+                Log.Message($"Timetable for {scheduleLink.colonist.LabelShort} is incomplete. Appending hour {hour}.");
+                scheduleLink.schedule.Add(GetDefaultTimeAssignmentDef(hour));
+            }
+        }
+
+        private static void SetBPCAssignment(ScheduleLinkWrapper link, StudyGroup studyGroup, TimeAssignmentDef assignment = null)
+        {
+            for (int hour = 0; hour < 24; hour++)
+            {
+                bool isScheduled;
+                if (studyGroup.startHour <= studyGroup.endHour)
                 {
-                    bool isScheduled;
-                    if (studyGroup.startHour <= studyGroup.endHour)
+                    isScheduled = hour >= studyGroup.startHour && hour <= studyGroup.endHour;
+                }
+                else
+                {
+                    isScheduled = hour >= studyGroup.startHour || hour <= studyGroup.endHour;
+                }
+
+                if (isScheduled)
+                {
+                    TimeAssignmentDef assignmentToSet = assignment ?? GetDefaultTimeAssignmentDef(hour);
+                    if (!link.TrySetAssignment(hour, assignmentToSet))
                     {
-                        isScheduled = hour >= studyGroup.startHour && hour <= studyGroup.endHour;
-                    }
-                    else
-                    {
-                        isScheduled = hour >= studyGroup.startHour || hour <= studyGroup.endHour;
+                        Log.Error($"[BPC PE Patch] Invalid schedule index {hour} for pawn {link.colonist.LabelShort}.");
+                        return;
                     }
 
-                    if (isScheduled)
-                    {
-                        TimeAssignmentDef assignmentToSet = assignment ?? ((hour > 5 && hour <= 21) ? TimeAssignmentDefOf.Anything : TimeAssignmentDefOf.Sleep);
-                        SetBPCAssignment(hour, assignmentToSet, scheduleLink);
-                        if (policyId == activePolicyId)
-                        {
-                            participant.timetable.SetAssignment(hour, assignmentToSet);
-                        }
-                    }
+                    EducationLog.Message($"Set timetable for pawn {link.colonist.LabelShort} on BPC policy {link.zone} at hour {hour} to {assignment.defName}");
                 }
             }
 
-            return false;
         }
 
-        private static void SetBPCAssignment(int hour, TimeAssignmentDef assignment, ScheduleLinkWrapper link)
-        {
-            if (!link.TrySetAssignment(hour, assignment))
-            {
-                Log.Error($"[BPC PE Patch] Invalid schedule index {hour} for pawn {link.colonist.LabelShort}.");
-                return;
-            }
-
-            EducationLog.Message($"Set timetable for pawn {link.colonist.LabelShort} on BPC policy {link.zone} at hour {hour} to {assignment.defName}");
-        }
-
-        private static ScheduleLinkWrapper getDefaultScheduleLink(Pawn pawn, int policyId)
+        private static ScheduleLinkWrapper getScheduleLink(Pawn pawn, int policyId)
         {
             return ScheduleManagerWrapper
                     .EnumerateScheduleLinks()
