@@ -5,7 +5,7 @@ using ProgressionEducation;
 using RimWorld;
 using Verse;
 
-namespace BetterPawnControlProgressionEducationPatch
+namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.ProgressionEducation
 {
     [HarmonyPatch(typeof(TimeAssignmentUtility), "SetPawnSchedules")]
     public static class TimeAssignmentUtility_SetPawnSchedules_Patch
@@ -31,7 +31,7 @@ namespace BetterPawnControlProgressionEducationPatch
             return policyId == activePolicyId;
         }
 
-        private static TimeAssignmentDef GetDefaultTimeAssignmentDef(int hour)
+        internal static TimeAssignmentDef GetDefaultTimeAssignmentDef(int hour)
         {
             return (hour > 5 && hour <= 21) ? TimeAssignmentDefOf.Anything : TimeAssignmentDefOf.Sleep;
         }
@@ -52,6 +52,7 @@ namespace BetterPawnControlProgressionEducationPatch
 
         private static void SetBPCAssignment(ScheduleLinkWrapper link, StudyGroup studyGroup, TimeAssignmentDef assignment = null)
         {
+            TryRepairScheduleLink(link);
             for (int hour = 0; hour < 24; hour++)
             {
                 bool isScheduled;
