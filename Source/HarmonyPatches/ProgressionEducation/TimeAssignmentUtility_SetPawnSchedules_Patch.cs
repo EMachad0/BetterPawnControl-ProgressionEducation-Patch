@@ -8,6 +8,8 @@ using Verse;
 
 namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.ProgressionEducation
 {
+    // ProgressionEducation updates pawn timetables directly, while Better Pawn Control persists schedules per policy link.
+    // Updating class hours in BPC's policy avoids schedule drift when BPC reapplies policy data.
     [HarmonyPatch(typeof(TimeAssignmentUtility), "SetPawnSchedules")]
     public static class TimeAssignmentUtility_SetPawnSchedules_Patch
     {

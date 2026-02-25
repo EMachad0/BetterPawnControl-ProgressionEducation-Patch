@@ -10,6 +10,8 @@ using Verse;
 
 namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.BetterPawnControl
 {
+    // Loading a non-class BPC policy can leave dynamic class assignments in pawn timetables from prior class scheduling.
+    // Normalizing those stale slots prevents education schedule defs from leaking into policies.
     [HarmonyPatch]
     public static class ScheduleManager_LoadState_Patch
     {
