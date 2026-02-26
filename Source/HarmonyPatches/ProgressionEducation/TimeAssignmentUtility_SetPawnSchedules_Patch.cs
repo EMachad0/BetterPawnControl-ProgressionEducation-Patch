@@ -17,17 +17,12 @@ namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.ProgressionE
         {
             var policyId = ScheduleUtility.defaultClassPolicyId;
             var activePolicyId = ScheduleManagerWrapper.GetActivePolicyIdOrDefault();
-            var targetMapId = studyGroup.Map.uniqueID;
+            var targetMap = studyGroup?.Map;
+            var targetMapId = targetMap.uniqueID;
 
             foreach (var participant in participants)
             {
-                var scheduleLink = ScheduleUtility.GetScheduleLink(participant, policyId, targetMapId);
-                if (scheduleLink == null)
-                {
-                    Log.Error($"[BPC PE Patch] ScheduleLink for {participant.LabelShort} and policy {policyId} not found.");
-                    continue;
-                }
-
+                var scheduleLink = ScheduleManagerWrapper.GetOrCreateScheduleLink(participant, policyId, targetMapId);
                 ScheduleUtility.SetBPCAssignment(scheduleLink, studyGroup, assignment);
             }
 

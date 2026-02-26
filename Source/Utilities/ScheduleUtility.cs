@@ -61,13 +61,6 @@ namespace BetterPawnControlProgressionEducationPatch.Utilities
             return (hour > 5 && hour <= 21) ? TimeAssignmentDefOf.Anything : TimeAssignmentDefOf.Sleep;
         }
 
-        internal static ScheduleLinkWrapper GetScheduleLink(Pawn pawn, int policyId, int mapId)
-        {
-            return ScheduleManagerWrapper
-                .EnumerateScheduleLinks()
-                .FirstOrFallback(l => l.zone == policyId && l.colonist is not null && pawn.Equals(l.colonist) && l.mapId == mapId);
-        }
-
         public static void RemoveClassesFromPawnTimetables(List<Pawn> pawns)
         {
             if (pawns is null)

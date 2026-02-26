@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using BetterPawnControl;
 using HarmonyLib;
+using Verse;
 
 namespace BetterPawnControlProgressionEducationPatch.Interop.BetterPawnControl
 {
@@ -33,11 +34,6 @@ namespace BetterPawnControlProgressionEducationPatch.Interop.BetterPawnControl
         public static IEnumerable<ScheduleLinkWrapper> EnumerateScheduleLinks()
         {
             var links = LinksField?.GetValue(null) as IEnumerable;
-            if (links == null)
-            {
-                yield break;
-            }
-
             foreach (var rawLink in links)
             {
                 if (ScheduleLinkWrapper.TryCreate(rawLink, out var wrapper))
@@ -45,6 +41,31 @@ namespace BetterPawnControlProgressionEducationPatch.Interop.BetterPawnControl
                     yield return wrapper;
                 }
             }
+        }
+
+        internal static ScheduleLinkWrapper GetScheduleLink(Pawn pawn, int policyId, int mapId)
+        {
+            return ScheduleManagerWrapper
+                .EnumerateScheduleLinks()
+                .FirstOrFallback(l => l.zone == policyId && l.colonist is not null && pawn.Equals(l.colonist) && l.mapId == mapId);
+        }
+
+
+        public static ScheduleLinkWrapper GetOrCreateScheduleLink(Pawn pawn, int policyId, int mapId)
+        {
+            var link = GetScheduleLink(pawn, policyId, mapId);
+            if (link is not null) return link;
+
+            var links = LinksField?.GetValue(null) as IList;
+            var newLink = new ScheduleLink(
+                policyId,
+                pawn,
+                pawn.playerSettings?.AreaRestrictionInPawnCurrentMap,
+                pawn.timetable?.times,
+                mapId);
+
+            links.Add(newLink);
+            return new ScheduleLinkWrapper(newLink);
         }
 
         private static Func<Policy> BuildGetActivePolicyDelegate()
