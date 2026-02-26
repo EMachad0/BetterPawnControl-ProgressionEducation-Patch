@@ -7,18 +7,17 @@ namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.RimWorld
 {
     // Class timetable defs can persist on pawns that leave their original map context,
     // which can later reintroduce class-only slots in non-class situations.
-    [HarmonyPatch(typeof(Pawn), nameof(Pawn.DeSpawn))]
-    public static class Pawn_DeSpawn_Patch
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.ExitMap))]
+    public static class Pawn_ExitMap_Patch
     {
         public static void Prefix(Pawn __instance)
         {
-            if (__instance == null || !__instance.Spawned || !__instance.IsColonist)
+            if (__instance == null || !__instance.IsColonist)
             {
                 return;
             }
 
-            List<Pawn> pawns = new List<Pawn> { __instance };
-            ScheduleUtility.RemoveClassesFromPawnTimetables(pawns);
+            ScheduleUtility.RemoveClassesFromPawnTimetables(new List<Pawn> { __instance });
         }
     }
 }
