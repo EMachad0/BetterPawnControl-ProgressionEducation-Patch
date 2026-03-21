@@ -8,24 +8,52 @@ namespace BetterPawnControlProgressionEducationPatch.Interop.BetterPawnControl
 {
     internal sealed class ScheduleLinkWrapper
     {
-        private static readonly AccessTools.FieldRef<Link, int> ZoneRef =
+        internal static readonly AccessTools.FieldRef<Link, int> ZoneRef =
             AccessTools.FieldRefAccess<Link, int>("zone");
 
-        private static readonly AccessTools.FieldRef<Link, int> MapIdRef =
+        internal static readonly AccessTools.FieldRef<Link, int> MapIdRef =
             AccessTools.FieldRefAccess<Link, int>("mapId");
 
-        private static readonly AccessTools.FieldRef<ScheduleLink, Pawn> ColonistRef =
+        internal static readonly AccessTools.FieldRef<ScheduleLink, Pawn> ColonistRef =
             AccessTools.FieldRefAccess<ScheduleLink, Pawn>("colonist");
 
-        private static readonly AccessTools.FieldRef<ScheduleLink, List<TimeAssignmentDef>> ScheduleRef =
+        internal static readonly AccessTools.FieldRef<ScheduleLink, Area> AreaRef =
+            AccessTools.FieldRefAccess<ScheduleLink, Area>("area");
+
+        internal static readonly AccessTools.FieldRef<ScheduleLink, List<TimeAssignmentDef>> ScheduleRef =
             AccessTools.FieldRefAccess<ScheduleLink, List<TimeAssignmentDef>>("schedule");
 
         private readonly ScheduleLink _link;
 
-        public int zone => ZoneRef(_link);
-        public int mapId => MapIdRef(_link);
-        public Pawn colonist => ColonistRef(_link);
-        public List<TimeAssignmentDef> schedule => ScheduleRef(_link);
+        public int zone
+        {
+            get => ZoneRef(_link);
+            set => ZoneRef(_link) = value;
+        }
+
+        public int mapId
+        {
+            get => MapIdRef(_link);
+            set => MapIdRef(_link) = value;
+        }
+
+        public Pawn colonist
+        {
+            get => ColonistRef(_link);
+            set => ColonistRef(_link) = value;
+        }
+
+        public Area area
+        {
+            get => AreaRef(_link);
+            set => AreaRef(_link) = value;
+        }
+
+        public List<TimeAssignmentDef> schedule
+        {
+            get => ScheduleRef(_link);
+            set => ScheduleRef(_link) = value;
+        }
 
         public ScheduleLinkWrapper(ScheduleLink link)
         {

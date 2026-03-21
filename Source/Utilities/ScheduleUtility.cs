@@ -55,7 +55,6 @@ namespace BetterPawnControlProgressionEducationPatch.Utilities
             }
         }
 
-
         public static TimeAssignmentDef GetDefaultTimeAssignmentDef(int hour)
         {
             return (hour > 5 && hour <= 21) ? TimeAssignmentDefOf.Anything : TimeAssignmentDefOf.Sleep;
