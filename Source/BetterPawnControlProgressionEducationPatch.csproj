@@ -3,7 +3,7 @@
         <OutputPath>..\Assemblies</OutputPath>
         <TargetFramework>net48</TargetFramework>
         <AssemblyTitle>Wormax</AssemblyTitle>
-        <AssemblyVersion>2026.0225.1</AssemblyVersion>
+        <AssemblyVersion>2026.0320.1</AssemblyVersion>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <LangVersion>latest</LangVersion>

@@ -95,8 +95,7 @@ namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.BetterPawnCo
 
                     if (!string.IsNullOrEmpty(defName) && defName != "null")
                     {
-                        string compatibleDefName = BackCompatibility.BackCompatibleDefName(typeof(TimeAssignmentDef), defName);
-                        assignment = DefDatabase<TimeAssignmentDef>.GetNamedSilentFail(compatibleDefName);
+                        assignment = DefDatabase<TimeAssignmentDef>.GetNamedSilentFail(defName);
                     }
 
                     resolvedSchedule.Add(assignment ?? ScheduleUtility.GetDefaultTimeAssignmentDef(hour));
