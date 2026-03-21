@@ -11,8 +11,6 @@ namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.BetterPawnCo
     [HarmonyPatch(typeof(ScheduleLink), nameof(ScheduleLink.ExposeData))]
     public static class ScheduleLink_ExposeData_Patch
     {
-        private static readonly Dictionary<ScheduleLink, List<string>> PendingScheduleDefNames = new();
-
         public static bool Prefix(ScheduleLink __instance)
         {
             Scribe_Values.Look(ref ScheduleLinkWrapper.ZoneRef(__instance), "zone", 0, true);
@@ -22,73 +20,90 @@ namespace BetterPawnControlProgressionEducationPatch.HarmonyPatches.BetterPawnCo
 
             if (Scribe.mode == LoadSaveMode.Saving)
             {
-                List<string> scheduleDefNames = GetScheduleDefNames(ScheduleLinkWrapper.ScheduleRef(__instance));
+                List<string> scheduleDefNames = ScheduleSerializationHelper.GetScheduleDefNames(ScheduleLinkWrapper.ScheduleRef(__instance));
                 Scribe_Collections.Look(ref scheduleDefNames, "schedule", LookMode.Value);
             }
             else if (Scribe.mode == LoadSaveMode.LoadingVars)
             {
                 List<string> scheduleDefNames = null;
                 Scribe_Collections.Look(ref scheduleDefNames, "schedule", LookMode.Value);
-                PendingScheduleDefNames[__instance] = scheduleDefNames;
+                ScheduleSerializationHelper.StorePending(__instance, scheduleDefNames);
             }
             else if (Scribe.mode == LoadSaveMode.ResolvingCrossRefs)
             {
-                ScheduleLinkWrapper.ScheduleRef(__instance) = ResolveSchedule(TakePendingScheduleDefNames(__instance));
+                var scheduleLink = new ScheduleLinkWrapper(__instance);
+                scheduleLink.schedule = ScheduleSerializationHelper.ResolvePending(__instance);
+                ScheduleUtility.TryRepairScheduleLink(scheduleLink);
             }
 
             return false;
         }
 
-        private static List<string> GetScheduleDefNames(List<TimeAssignmentDef> schedule)
+        private static class ScheduleSerializationHelper
         {
-            if (schedule == null)
+            private static readonly Dictionary<ScheduleLink, List<string>> PendingScheduleDefNames = new();
+
+            public static List<string> GetScheduleDefNames(List<TimeAssignmentDef> schedule)
             {
-                return null;
-            }
-
-            var scheduleDefNames = new List<string>(schedule.Count);
-            foreach (var timeAssignment in schedule)
-            {
-                scheduleDefNames.Add(timeAssignment?.defName);
-            }
-
-            return scheduleDefNames;
-        }
-
-        private static List<TimeAssignmentDef> ResolveSchedule(List<string> scheduleDefNames)
-        {
-            if (scheduleDefNames == null)
-            {
-                return null;
-            }
-
-            var resolvedSchedule = new List<TimeAssignmentDef>(scheduleDefNames.Count);
-            for (int hour = 0; hour < scheduleDefNames.Count; hour++)
-            {
-                var defName = scheduleDefNames[hour];
-                TimeAssignmentDef assignment = null;
-
-                if (!string.IsNullOrEmpty(defName) && defName != "null")
+                if (schedule == null)
                 {
-                    string compatibleDefName = BackCompatibility.BackCompatibleDefName(typeof(TimeAssignmentDef), defName);
-                    assignment = DefDatabase<TimeAssignmentDef>.GetNamedSilentFail(compatibleDefName);
+                    return null;
                 }
 
-                resolvedSchedule.Add(assignment ?? ScheduleUtility.GetDefaultTimeAssignmentDef(hour));
+                var scheduleDefNames = new List<string>(schedule.Count);
+                foreach (var timeAssignment in schedule)
+                {
+                    scheduleDefNames.Add(timeAssignment?.defName);
+                }
+
+                return scheduleDefNames;
             }
 
-            return resolvedSchedule;
-        }
-
-        private static List<string> TakePendingScheduleDefNames(ScheduleLink scheduleLink)
-        {
-            if (!PendingScheduleDefNames.TryGetValue(scheduleLink, out var scheduleDefNames))
+            public static void StorePending(ScheduleLink scheduleLink, List<string> scheduleDefNames)
             {
-                return null;
+                PendingScheduleDefNames[scheduleLink] = scheduleDefNames;
             }
 
-            PendingScheduleDefNames.Remove(scheduleLink);
-            return scheduleDefNames;
+            public static List<TimeAssignmentDef> ResolvePending(ScheduleLink scheduleLink)
+            {
+                return ResolveSchedule(TakePendingScheduleDefNames(scheduleLink));
+            }
+
+            private static List<string> TakePendingScheduleDefNames(ScheduleLink scheduleLink)
+            {
+                if (!PendingScheduleDefNames.TryGetValue(scheduleLink, out var scheduleDefNames))
+                {
+                    return null;
+                }
+
+                PendingScheduleDefNames.Remove(scheduleLink);
+                return scheduleDefNames;
+            }
+
+            private static List<TimeAssignmentDef> ResolveSchedule(List<string> scheduleDefNames)
+            {
+                if (scheduleDefNames == null)
+                {
+                    return null;
+                }
+
+                var resolvedSchedule = new List<TimeAssignmentDef>(scheduleDefNames.Count);
+                for (int hour = 0; hour < scheduleDefNames.Count; hour++)
+                {
+                    var defName = scheduleDefNames[hour];
+                    TimeAssignmentDef assignment = null;
+
+                    if (!string.IsNullOrEmpty(defName) && defName != "null")
+                    {
+                        string compatibleDefName = BackCompatibility.BackCompatibleDefName(typeof(TimeAssignmentDef), defName);
+                        assignment = DefDatabase<TimeAssignmentDef>.GetNamedSilentFail(compatibleDefName);
+                    }
+
+                    resolvedSchedule.Add(assignment ?? ScheduleUtility.GetDefaultTimeAssignmentDef(hour));
+                }
+
+                return resolvedSchedule;
+            }
         }
     }
 }
