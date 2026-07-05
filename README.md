@@ -24,7 +24,7 @@ If you have a use case where this is not sufficient, let me know.
 
 ### Steam
 
-Subscribe to all required mods and this patch.
+Subscribe to all required mods and [this patch](https://steamcommunity.com/sharedfiles/filedetails/?id=3673605975).
 
 ## Scope
 
