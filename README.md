@@ -1,3 +1,5 @@
+<p align="center"><img src="About/Preview.png" alt="Preview"></p>
+
 # Better Pawn Control + Progression: Education Patch
 
 Compatibility patch for RimWorld `1.6` that resolves schedule interactions between:
