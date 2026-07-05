@@ -9,8 +9,10 @@ namespace BetterPawnControlProgressionEducationPatch
         {
             LongEventHandler.ExecuteWhenFinished(delegate
             {
-                new Harmony("PatchMod").PatchAll();
+                new Harmony("machado.bpcpepatch").PatchAll();
+#if DEBUG
                 Harmony.DEBUG = true;
+#endif
             });
         }
     }
